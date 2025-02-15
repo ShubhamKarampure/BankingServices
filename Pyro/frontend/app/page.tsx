@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import axios from "axios"
 import BalanceDisplay from "./components/BalanceDisplay"
 import TransactionForm from "./components/TransactionForm"
 import TransactionHistory from "./components/TransactionHistory"
@@ -15,21 +16,37 @@ export default function BankingSystem() {
   const [balance, setBalance] = useState(0)
   const [transactions, setTransactions] = useState<Transaction[]>([])
 
-  const handleTransaction = (type: "deposit" | "withdrawal", amount: number) => {
-    if (type === "withdrawal" && amount > balance) {
-      alert("Insufficient funds!")
-      return
+  // Fetch balance when component mounts
+  useEffect(() => {
+    const fetchBalance = async () => {
+      try {
+        const response = await axios.get("/api/banking")
+        setBalance(response.data.balance)
+      } catch (error) {
+        console.error("Failed to fetch balance:", error)
+      }
     }
+    fetchBalance()
+  }, [])
 
-    const newBalance = type === "deposit" ? balance + amount : balance - amount
-    setBalance(newBalance)
+  // Handle Transaction
+  const handleTransaction = async (type: "deposit" | "withdrawal", amount: number) => {
+    try {
+      const response = await axios.post("/api/banking", { type, amount })
+      const newBalance = await axios.get("/api/banking")
 
-    const newTransaction: Transaction = {
-      type,
-      amount,
-      date: new Date(),
+      // Update balance and transactions state
+      setBalance(newBalance.data.balance)
+      const newTransaction: Transaction = {
+        type,
+        amount,
+        date: new Date(),
+      }
+      setTransactions([newTransaction, ...transactions])
+    } catch (error) {
+      console.error("Transaction failed:", error)
+      alert("Transaction failed!")
     }
-    setTransactions([newTransaction, ...transactions])
   }
 
   return (
@@ -52,4 +69,3 @@ export default function BankingSystem() {
     </div>
   )
 }
-

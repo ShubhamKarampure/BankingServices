@@ -37,9 +37,7 @@ export default function BankingSystem() {
 
       if (res.data.success) {
         // Refresh balance after a successful transaction
-        setBalance((prevBalance) =>
-          type === "deposit" ? prevBalance + amount : prevBalance - amount
-        )
+        setBalance(res.data.new_balance)
 
         // Add the new transaction to the history
         const newTransaction: Transaction = {

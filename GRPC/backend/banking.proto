@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package banking;
+
+// Define the BankingService
+service BankingService {
+  // Get the current balance
+  rpc GetBalance (Empty) returns (BalanceResponse);
+
+  // Perform a transaction (deposit or withdrawal)
+  rpc PerformTransaction (TransactionRequest) returns (TransactionResponse);
+}
+
+// Empty message for GetBalance
+message Empty {}
+
+// Response message for GetBalance
+message BalanceResponse {
+  int32 balance = 1;
+}
+
+// Request message for PerformTransaction
+message TransactionRequest {
+  string type = 1;   // "deposit" or "withdrawal"
+  int32 amount = 2;
+}
+
+// Response message for PerformTransaction
+message TransactionResponse {
+  string status = 1;
+  int32 new_balance = 2;
+}
